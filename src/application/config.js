@@ -4,7 +4,7 @@ module.exports = {
         positionSize: 5,
         leverage: 5,
         maxPositions: 3,
-        timeframe: "1MIN",
+        timeframe: "1m",
         stopLoss: {
             percentage: 1.5,
         },

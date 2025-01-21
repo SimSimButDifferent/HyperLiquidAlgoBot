@@ -1,5 +1,3 @@
-const { Logger } = require("winston")
-const { CompositeClient } = require("@dydxprotocol/v4-client-js")
 const config = require("config")
 const { shortEMA, longEMA } = require("./indicators/ema")
 
@@ -36,10 +34,6 @@ class ScalpingStrategy {
             this.logger.error("Error evaluating position", { error })
             throw error
         }
-    }
-
-    getCurrentPrice() {
-        return 0
     }
 }
 
