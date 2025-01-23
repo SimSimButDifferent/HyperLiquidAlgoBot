@@ -5,7 +5,7 @@ async function getCandles(symbol, interval, count = 5000) {
     const sdk = new Hyperliquid({
         enableWs: false,
         privateKey: process.env.PRIVATE_KEY_TEST,
-        testnet: true,
+        testnet: false,
     })
 
     try {
@@ -52,7 +52,7 @@ async function getCurrentPrice(symbol) {
     const sdk = new Hyperliquid({
         enableWs: false,
         privateKey: process.env.PRIVATE_KEY_TEST,
-        testnet: true,
+        testnet: false,
     })
 
     try {
@@ -67,9 +67,13 @@ async function getCurrentPrice(symbol) {
             currentTime,
             true,
         )
-        return Number(response[0].c)
+
+        const responseData = response[0]
+        const price = responseData.c
+
+        return Number(price)
     } finally {
-        sdk.disconnect()
+        await sdk.disconnect()
     }
 }
 

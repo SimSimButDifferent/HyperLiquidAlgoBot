@@ -1,6 +1,4 @@
-const { getCompositeClient } = require("../dydx/compositeClient")
-const { getIndexerClient, marketData } = require("../dydx/indexer")
-const { connectSocket } = require("../dydx/websocket")
+const { testWebSocket } = require("../hyperliquid/websocket")
 const ScalpingStrategy = require("../strategy/ScalpingStrategy")
 const winston = require("winston")
 const config = require("config")
@@ -16,9 +14,7 @@ const logger = winston.createLogger({
     ],
 })
 
-const compositeClient = getCompositeClient()
-const indexerClient = getIndexerClient()
-const tradingData = marketData(indexerClient)
+const tradingData = require("../backtesting/data/BTC-PERP/BTC-PERP-1m.json")
 
 const tradingConfig = config.get("trading")
 const ticker = tradingConfig.market
@@ -26,17 +22,13 @@ const timeframe = tradingConfig.timeframe
 const leverage = tradingConfig.leverage
 const positionSize = tradingConfig.positionSize
 
-async function initialize(indexerClient, tradingData) {
-    console.log(
-        "--------------------------------INDEXER CLIENT CONNECTED--------------------------------",
-    )
-    console.log(indexerClient)
+async function initialize(tradingData) {
+    console.log(tradingData)
     console.log(
         "--------------------------------TRADING DATA FETCHED--------------------------------",
     )
-    console.log(tradingData)
+    testWebSocket()
     console.log("--------------------------------SOCKET CONNECTED--------------------------------")
-    connectSocket()
 }
 
 async function main(tradingData) {
@@ -45,7 +37,7 @@ async function main(tradingData) {
     // Get perpetual markets
     async function getPerpetualMarkets(ticker) {
         try {
-            const response = await indexerClient.markets.getPerpetualMarkets(ticker)
+            const response = await getCandles(ticker, "1m")
             return response.markets
         } catch (error) {
             console.log(error.message)
@@ -81,7 +73,7 @@ async function main(tradingData) {
     setInterval(trade(tradingData), 1 * 60 * 1000)
 }
 
-initialize(indexerClient, tradingData)
+initialize(tradingData)
     .then(() => {
         console.log("Candestickdata fetched successfully")
     })
