@@ -1,4 +1,4 @@
-// const btcData = require("../../backtesting/data/BTC-USD/BTC-USD-1MIN.json")
+const btcData = require("../../backtesting/data/BTC-PERP/BTC-PERP-1m.json")
 
 function shortEMA(data) {
     const priceData = getPriceData(data)
@@ -10,9 +10,9 @@ function longEMA(data) {
     return calculateEMA(priceData, 21)
 }
 
-function getPriceData(candleStickData) {
-    const candles = candleStickData.candles
-    const priceData = candles.map((candle) => candle.close)
+function getPriceData(candles) {
+    // const candles = candleStickData.candles
+    const priceData = candles.map((candle) => candle.c)
     const priceDatatoNumber = priceData.map((price) => Number(price))
     return priceDatatoNumber
 }
@@ -31,6 +31,8 @@ function calculateEMA(priceData, period) {
 
     return emaValues
 }
+
+// console.log(shortEMA(btcData))
 
 module.exports = {
     shortEMA,

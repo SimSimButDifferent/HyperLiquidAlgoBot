@@ -2,9 +2,8 @@ const config = require("config")
 const { shortEMA, longEMA } = require("./indicators/ema")
 
 class ScalpingStrategy {
-    constructor(logger, client) {
+    constructor(logger) {
         this.logger = logger
-        this.client = client
         this.market = config.get("trading.market")
         this.timeframe = config.get("trading.timeframe")
         this.leverage = config.get("trading.leverage")

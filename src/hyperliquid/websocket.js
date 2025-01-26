@@ -1,6 +1,6 @@
 const { Hyperliquid } = require("hyperliquid")
 
-async function testWebSocket() {
+async function testWebSocket(ticker, timeframe) {
     const sdk = new Hyperliquid({ enableWs: true })
 
     try {
@@ -12,7 +12,7 @@ async function testWebSocket() {
         const MINUTE_MS = 60 * 1000
         const BUFFER_MS = 100 // Small buffer to ensure we get the final update
 
-        sdk.subscriptions.subscribeToCandle("BTC-PERP", "1m", (data) => {
+        sdk.subscriptions.subscribeToCandle(ticker, timeframe, (data) => {
             const currentTimestamp = Math.floor(Date.now() / MINUTE_MS) * MINUTE_MS
 
             if (currentTimestamp > lastCandleTimestamp) {
@@ -35,4 +35,6 @@ async function testWebSocket() {
     }
 }
 
-testWebSocket()
+// testWebSocket()
+
+module.exports = { testWebSocket }

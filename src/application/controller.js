@@ -1,4 +1,5 @@
 const { testWebSocket } = require("../hyperliquid/websocket")
+const { getCandles, getCurrentPrice } = require("../hyperliquid/marketInfo")
 const ScalpingStrategy = require("../strategy/ScalpingStrategy")
 const winston = require("winston")
 const config = require("config")
@@ -14,66 +15,62 @@ const logger = winston.createLogger({
     ],
 })
 
-const tradingData = require("../backtesting/data/BTC-PERP/BTC-PERP-1m.json")
+// const tradingData = require("../backtesting/data/BTC-PERP/BTC-PERP-1m.json")
 
 const tradingConfig = config.get("trading")
 const ticker = tradingConfig.market
-const timeframe = tradingConfig.timeframe
+const interval = tradingConfig.timeframe
 const leverage = tradingConfig.leverage
 const positionSize = tradingConfig.positionSize
 
-async function initialize(tradingData) {
-    console.log(tradingData)
-    console.log(
-        "--------------------------------TRADING DATA FETCHED--------------------------------",
-    )
-    testWebSocket()
+async function initialize() {
+    testWebSocket(ticker, interval)
     console.log("--------------------------------SOCKET CONNECTED--------------------------------")
 }
 
-async function main(tradingData) {
-    const strategy = new ScalpingStrategy(logger, compositeClient)
+async function main(ticker, interval) {
+    const strategy = new ScalpingStrategy(logger)
 
-    // Get perpetual markets
-    async function getPerpetualMarkets(ticker) {
-        try {
-            const response = await getCandles(ticker, "1m")
-            return response.markets
-        } catch (error) {
-            console.log(error.message)
-        }
-    }
+    try {
+        // const marketResponse = await getCandles(ticker, interval, 10)
+        const marketData = await getCandles(ticker, interval, 10)
 
-    const marketResponse = await getPerpetualMarkets(ticker)
-    console.log("marketResponse", marketResponse)
-    const marketData = marketResponse[ticker]
+        // console.log("marketResponse", marketResponse)
+        // const marketData = marketResponse[0]
 
-    const tickSize = parseFloat(marketData.tickSize)
+        console.log("marketData", marketData)
 
-    async function trade(tradingData) {
-        try {
-            const signal = await strategy.evaluatePosition(tradingData)
-            const currentPrice = strategy.getCurrentPrice()
+        async function trade() {
+            try {
+                const signal = await strategy.evaluatePosition(marketData)
+                const currentPrice = await getCurrentPrice(ticker)
 
-            if (signal === "LONG") {
-                const price = currentPrice + tickSize
-                const order = await placeOrder(price)
-                console.log("Order placed successfully:", order)
-            } else if (signal === "CLOSE_LONG") {
-                const price = currentPrice - tickSize
-                const order = await closeOrder(price)
-                console.log("Order closed successfully:", order)
+                if (signal === "LONG") {
+                    const price = currentPrice
+                    const order = await placeOrder(price)
+                    console.log("Order placed successfully:", order)
+                } else if (signal === "CLOSE_LONG") {
+                    const price = currentPrice
+                    const order = await closeOrder(price)
+                    console.log("Order closed successfully:", order)
+                }
+            } catch (error) {
+                console.error("Error executing trade:", error)
             }
-        } catch (error) {
-            console.error("Error executing trade:", error)
         }
-    }
 
-    // Run the trade function every 15 minutes
-    setInterval(trade(tradingData), 1 * 60 * 1000)
+        // interval string to number
+        const intervalNumber = parseInt(interval.split("m")[0])
+        console.log("intervalNumber", intervalNumber)
+
+        // Run the trade function every interval
+        setInterval(trade(), intervalNumber * 60 * 1000)
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 
-initialize(tradingData)
+initialize()
     .then(() => {
         console.log("Candestickdata fetched successfully")
     })
@@ -81,7 +78,7 @@ initialize(tradingData)
         console.error("Error fetching candlestick data:", error)
     })
 
-main(tradingData)
+main(ticker, interval)
     .then(() => {
         console.log("Bot started successfully.")
     })
