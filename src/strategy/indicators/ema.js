@@ -1,13 +1,16 @@
-const btcData = require("../../backtesting/data/BTC-PERP/BTC-PERP-1m.json")
+const config = require("config")
+const indicatorsConfig = config.get("indicators")
+const longEmaPeriod = indicatorsConfig.ema.longEmaPeriod
+const shortEmaPeriod = indicatorsConfig.ema.shortEmaPeriod
 
 function shortEMA(data) {
     const priceData = getPriceData(data)
-    return calculateEMA(priceData, 9)
+    return calculateEMA(priceData, shortEmaPeriod)
 }
 
 function longEMA(data) {
     const priceData = getPriceData(data)
-    return calculateEMA(priceData, 21)
+    return calculateEMA(priceData, longEmaPeriod)
 }
 
 function getPriceData(candles) {

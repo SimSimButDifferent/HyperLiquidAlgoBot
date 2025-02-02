@@ -17,13 +17,15 @@ class ScalpingStrategy {
 
             const shortEma = shortEmaValues[shortEmaValues.length - 1]
             const longEma = longEmaValues[longEmaValues.length - 1]
+            const previousShortEma = shortEmaValues[shortEmaValues.length - 2]
+            const previousLongEma = longEmaValues[longEmaValues.length - 2]
 
-            if (shortEma > longEma) {
+            if (shortEma > longEma && previousShortEma < previousLongEma) {
                 this.logger.info("Long entry conditions met", { shortEma, longEma })
                 return "LONG"
             }
 
-            if (shortEma < longEma) {
+            if (shortEma < longEma && previousShortEma > previousLongEma) {
                 this.logger.info("Close long conditions met", { shortEma, longEma })
                 return "CLOSE_LONG"
             }

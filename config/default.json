@@ -1,7 +1,7 @@
 {
   "trading": {
       "market": "BTC-PERP",
-      "positionSize": 5,
+      "positionSize": 0.001,
       "leverage": 5,
       "maxPositions": 3,
       "timeframe": "1m",

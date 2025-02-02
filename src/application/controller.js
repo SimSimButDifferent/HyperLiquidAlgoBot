@@ -1,5 +1,6 @@
 const { testWebSocket } = require("../hyperliquid/websocket")
-const { getCandles, getCurrentPrice } = require("../hyperliquid/marketInfo")
+const { getCandles, getCurrentPrice, getUserOpenOrders } = require("../hyperliquid/marketInfo")
+const { openLong, closeLong } = require("../hyperliquid/trade")
 const ScalpingStrategy = require("../strategy/ScalpingStrategy")
 const winston = require("winston")
 const config = require("config")
@@ -15,43 +16,39 @@ const logger = winston.createLogger({
     ],
 })
 
-// const tradingData = require("../backtesting/data/BTC-PERP/BTC-PERP-1m.json")
-
 const tradingConfig = config.get("trading")
-const ticker = tradingConfig.market
+const symbol = tradingConfig.market
 const interval = tradingConfig.timeframe
 const leverage = tradingConfig.leverage
 const positionSize = tradingConfig.positionSize
 
-async function initialize() {
-    testWebSocket(ticker, interval)
-    console.log("--------------------------------SOCKET CONNECTED--------------------------------")
-}
+console.log("symbol", symbol)
+console.log("interval", interval)
+console.log("leverage", leverage)
+console.log("positionSize", positionSize)
 
-async function main(ticker, interval) {
+// async function initialize() {
+//     testWebSocket(symbol, interval)
+//     console.log("--------------------------------SOCKET CONNECTED--------------------------------")
+// }
+
+async function main(symbol, interval) {
     const strategy = new ScalpingStrategy(logger)
 
     try {
-        // const marketResponse = await getCandles(ticker, interval, 10)
-        const marketData = await getCandles(ticker, interval, 10)
-
-        // console.log("marketResponse", marketResponse)
-        // const marketData = marketResponse[0]
-
-        console.log("marketData", marketData)
-
         async function trade() {
             try {
+                const marketData = await getCandles(symbol, interval, 25)
+                // Check for existing open orders
+                const openOrders = await getUserOpenOrders()
+
                 const signal = await strategy.evaluatePosition(marketData)
-                const currentPrice = await getCurrentPrice(ticker)
 
                 if (signal === "LONG") {
-                    const price = currentPrice
-                    const order = await placeOrder(price)
+                    const order = await openLong(symbol, positionSize)
                     console.log("Order placed successfully:", order)
-                } else if (signal === "CLOSE_LONG") {
-                    const price = currentPrice
-                    const order = await closeOrder(price)
+                } else if (signal === "CLOSE_LONG" && openOrders.length > 0) {
+                    const order = await closeLong(symbol, positionSize)
                     console.log("Order closed successfully:", order)
                 }
             } catch (error) {
@@ -59,26 +56,34 @@ async function main(ticker, interval) {
             }
         }
 
-        // interval string to number
+        // Convert interval string to number
         const intervalNumber = parseInt(interval.split("m")[0])
-        console.log("intervalNumber", intervalNumber)
 
-        // Run the trade function every interval
-        setInterval(trade(), intervalNumber * 60 * 1000)
+        const intervalId = setInterval(
+            () => {
+                trade().catch((error) => {
+                    console.error("Error in trade interval:", error)
+                })
+            },
+            intervalNumber * 60 * 1000,
+        )
+
+        // Later, if you need to stop the bot:
+        // clearInterval(intervalId)
     } catch (error) {
         console.log(error.message)
     }
 }
 
-initialize()
-    .then(() => {
-        console.log("Candestickdata fetched successfully")
-    })
-    .catch((error) => {
-        console.error("Error fetching candlestick data:", error)
-    })
+// initialize()
+//     .then(() => {
+//         console.log("Candestickdata fetched successfully")
+//     })
+//     .catch((error) => {
+//         console.error("Error fetching candlestick data:", error)
+//     })
 
-main(ticker, interval)
+main(symbol, interval)
     .then(() => {
         console.log("Bot started successfully.")
     })
