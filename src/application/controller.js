@@ -27,11 +27,6 @@ console.log("interval", interval)
 console.log("leverage", leverage)
 console.log("positionSize", positionSize)
 
-// async function initialize() {
-//     testWebSocket(symbol, interval)
-//     console.log("--------------------------------SOCKET CONNECTED--------------------------------")
-// }
-
 async function main(symbol, interval) {
     const strategy = new ScalpingStrategy(logger)
 
@@ -44,7 +39,7 @@ async function main(symbol, interval) {
 
                 const signal = await strategy.evaluatePosition(marketData)
 
-                if (signal === "LONG") {
+                if (signal === "LONG" && openOrders.length === 0) {
                     const order = await openLong(symbol, positionSize)
                     console.log("Order placed successfully:", order)
                 } else if (signal === "CLOSE_LONG" && openOrders.length > 0) {
@@ -74,14 +69,6 @@ async function main(symbol, interval) {
         console.log(error.message)
     }
 }
-
-// initialize()
-//     .then(() => {
-//         console.log("Candestickdata fetched successfully")
-//     })
-//     .catch((error) => {
-//         console.error("Error fetching candlestick data:", error)
-//     })
 
 main(symbol, interval)
     .then(() => {

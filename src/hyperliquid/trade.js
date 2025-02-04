@@ -11,6 +11,60 @@ if (networkType === "testnet") {
     testnet = true
 }
 
+async function limitLong(symbol, quantity, limitPrice) {
+    const sdk = new Hyperliquid({
+        privateKey: privateKey,
+        address: address,
+        testnet: testnet,
+        enableWs: false,
+    })
+
+    try {
+        await sdk.connect()
+
+        console.log("placing order")
+
+        // Convert quantity to number and validate
+        const parsedQuantity = parseFloat(quantity)
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+            throw new Error("Invalid quantity. Must be a positive number")
+        }
+
+        // Get the current market price to use as limit price
+        const currentPrice = await getCurrentPrice(symbol)
+        console.log("Current price:", currentPrice)
+
+        if (!currentPrice || typeof currentPrice !== "number") {
+            throw new Error("Invalid current price received")
+        }
+
+        // 1. Place Order
+        const orderRequest = {
+            coin: symbol,
+            is_buy: true,
+            sz: parsedQuantity, // SDK will convert to string internally
+            limit_px: limitPrice, // SDK will convert to string internally
+            order_type: {
+                limit: {
+                    tif: "Gtc", // Immediate-or-Cancel for market-like orders
+                },
+            },
+            reduce_only: false,
+        }
+
+        console.log("Order request:", orderRequest)
+        const order = await sdk.exchange.placeOrder(orderRequest)
+
+        console.log(`Long Order placed: ${order}`)
+        return order
+    } catch (error) {
+        console.error("Error in openLong:", error)
+        throw error
+    } finally {
+        sdk.disconnect()
+    }
+}
+
 async function openLong(symbol, quantity) {
     const sdk = new Hyperliquid({
         privateKey: privateKey,
@@ -235,7 +289,7 @@ async function closeShort(symbol, quantity) {
 
 module.exports = { openLong, openShort, closeLong, closeShort }
 
-closeLong("BTC-PERP", 0.001)
+limitLong("BTC-PERP", 0.001, 96000)
     .then((order) => {
         console.log("Order placed successfully:", order.response.data.statuses)
     })
