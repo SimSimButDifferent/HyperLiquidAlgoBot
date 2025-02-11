@@ -1,6 +1,6 @@
 const { testWebSocket } = require("../hyperliquid/websocket")
-const { getCandles, getCurrentPrice, getUserOpenOrders } = require("../hyperliquid/marketInfo")
-const { openLong, closeLong } = require("../hyperliquid/trade")
+const { getCandles, getUserOpenOrders, getUserOpenPositions } = require("../hyperliquid/marketInfo")
+const { openLong, closeLong, setLeverage } = require("../hyperliquid/trade")
 const ScalpingStrategy = require("../strategy/ScalpingStrategy")
 const winston = require("winston")
 const config = require("config")
@@ -20,12 +20,18 @@ const tradingConfig = config.get("trading")
 const symbol = tradingConfig.market
 const interval = tradingConfig.timeframe
 const leverage = tradingConfig.leverage
+const leverageMode = tradingConfig.leverageMode
 const positionSize = tradingConfig.positionSize
+const indicators = config.get("indicators")
+const shortEmaPeriod = indicators.ema.shortEmaPeriod
+const longEmaPeriod = indicators.ema.longEmaPeriod
 
 console.log("symbol", symbol)
 console.log("interval", interval)
 console.log("leverage", leverage)
 console.log("positionSize", positionSize)
+console.log("shortEmaPeriod", shortEmaPeriod)
+console.log("longEmaPeriod", longEmaPeriod)
 
 async function main(symbol, interval) {
     const strategy = new ScalpingStrategy(logger)
@@ -35,14 +41,16 @@ async function main(symbol, interval) {
             try {
                 const marketData = await getCandles(symbol, interval, 25)
                 // Check for existing open orders
-                const openOrders = await getUserOpenOrders()
+                const openOrders = await getUserOpenPositions()
 
                 const signal = await strategy.evaluatePosition(marketData)
 
                 if (signal === "LONG" && openOrders.length === 0) {
+                    console.log("Opening long position")
                     const order = await openLong(symbol, positionSize)
                     console.log("Order placed successfully:", order)
                 } else if (signal === "CLOSE_LONG" && openOrders.length > 0) {
+                    console.log("Closing long position")
                     const order = await closeLong(symbol, positionSize)
                     console.log("Order closed successfully:", order)
                 }

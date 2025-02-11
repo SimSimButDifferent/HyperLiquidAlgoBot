@@ -1,5 +1,5 @@
 const { Hyperliquid } = require("hyperliquid")
-const { getCurrentPrice } = require("./marketInfo")
+const { getCurrentPrice, getUserOpenPositions } = require("./marketInfo")
 require("dotenv").config()
 
 const privateKey = process.env.AGENT_PRIVATE_KEY_TEST
@@ -46,7 +46,7 @@ async function limitLong(symbol, quantity, limitPrice) {
             limit_px: limitPrice, // SDK will convert to string internally
             order_type: {
                 limit: {
-                    tif: "Gtc", // Immediate-or-Cancel for market-like orders
+                    tif: "Ioc", // Immediate-or-Cancel for market-like orders
                 },
             },
             reduce_only: false,
@@ -59,6 +59,28 @@ async function limitLong(symbol, quantity, limitPrice) {
         return order
     } catch (error) {
         console.error("Error in openLong:", error)
+        throw error
+    } finally {
+        sdk.disconnect()
+    }
+}
+
+async function setLeverage(symbol, leverage, leverageMode) {
+    const sdk = new Hyperliquid({
+        privateKey: privateKey,
+        address: address,
+        testnet: testnet,
+        enableWs: false,
+    })
+
+    try {
+        await sdk.connect()
+
+        const leverage = await sdk.exchange.updateLeverage(symbol, leverage, leverageMode)
+        console.log("Leverage set:", leverage)
+        return leverage
+    } catch (error) {
+        console.error("Error in setLeverage:", error)
         throw error
     } finally {
         sdk.disconnect()
@@ -104,7 +126,7 @@ async function openLong(symbol, quantity) {
             limit_px: limitPrice, // SDK will convert to string internally
             order_type: {
                 limit: {
-                    tif: "Gtc", // Immediate-or-Cancel for market-like orders
+                    tif: "Gtc", // Good-till-cancel for market-like orders
                 },
             },
             reduce_only: false,
@@ -149,20 +171,21 @@ async function closeLong(symbol, quantity) {
         }
 
         // For market sell, set limit price slightly lower than current price
-        const limitPrice = parseFloat((currentPrice * 0.95).toFixed(0))
+        const limitPrice = parseFloat((currentPrice * 0.995).toFixed(0))
         console.log("Limit price:", limitPrice, typeof limitPrice)
 
         const orderRequest = {
             coin: symbol,
-            is_buy: false, // Selling to close long
+            is_buy: false,
             sz: parsedQuantity,
             limit_px: limitPrice,
             order_type: {
                 limit: {
-                    tif: "Ioc", // Immediate-or-Cancel for market-like orders
+                    tif: "Gtc",
                 },
             },
-            reduce_only: true, // This is a closing order
+
+            reduce_only: true,
         }
 
         console.log("Closing long order:", orderRequest)
@@ -287,15 +310,62 @@ async function closeShort(symbol, quantity) {
     }
 }
 
-module.exports = { openLong, openShort, closeLong, closeShort }
+module.exports = { openLong, openShort, closeLong, closeShort, setLeverage }
 
-limitLong("BTC-PERP", 0.001, 96000)
-    .then((order) => {
-        console.log("Order placed successfully:", order.response.data.statuses)
-    })
-    .catch((error) => {
-        console.error("Error in openLong:", error)
-    })
+// limitLong("BTC-PERP", 0.001, 98000)
+//     .then((order) => {
+//         console.log("Order placed successfully:", order.response.data.statuses)
+//     })
+//     .catch((error) => {
+//         console.error("Error in openLong:", error)
+//     })
+
+// const main = async () => {
+//     const sdk = new Hyperliquid({
+//         privateKey: privateKey,
+//         address: address,
+//         testnet: testnet,
+//         enableWs: false,
+//     })
+//     const openPositions = await getUserOpenPositions()
+//     try {
+//         if (openPositions.length > 0) {
+//             console.log("User has open positions")
+//             const closeLongOrder = await closeLong("BTC-PERP", 0.001)
+//             console.log("Close long order placed:", closeLongOrder)
+//         } else {
+//             console.log("User has no open positions")
+//             const openLongOrder = await openLong("BTC-PERP", 0.001)
+//             console.log("Open long order placed:", openLongOrder)
+//         }
+//     } catch (error) {
+//         console.error("Error in closeLong:", error)
+//     }
+// }
+
+// limitLong("BTC-PERP", 0.001, 98000)
+//     .then((order) => {
+//         console.log("Order placed successfully:", order)
+//     })
+//     .catch((error) => {
+//         console.error("Error in openLong:", error)
+//     })
+
+// main()
+//     .then(() => {
+//         console.log("Main function completed")
+//     })
+//     .catch((error) => {
+//         console.error("Error in main:", error)
+//     })
+
+// closeLong("BTC-PERP", 0.001)
+//     .then((order) => {
+//         console.log("Order placed successfully:", order.response.data.statuses)
+//     })
+//     .catch((error) => {
+//         console.error("Error in closeLong:", error)
+//     })
 
 // const orderRequest = {
 //     coin: "SOL-PERP",

@@ -35,6 +35,6 @@ async function testWebSocket(ticker, timeframe) {
     }
 }
 
-// testWebSocket()
+// testWebSocket("BTC-PERP", "1m")
 
 module.exports = { testWebSocket }

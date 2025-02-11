@@ -2,7 +2,8 @@
   "trading": {
       "market": "BTC-PERP",
       "positionSize": 0.001,
-      "leverage": 5,
+      "leverage": 20,
+      "leverageMode": "isolated",
       "maxPositions": 3,
       "timeframe": "1m",
       "stopLoss": {
@@ -31,8 +32,8 @@
           "multiplier": 1.5
       },
       "ema": {
-          "shortEmaPeriod": 9,
-          "longEmaPeriod": 21
+          "shortEmaPeriod": 3,
+          "longEmaPeriod": 5
       }
   },
   "database": {

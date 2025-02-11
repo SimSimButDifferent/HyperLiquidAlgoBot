@@ -1,9 +1,11 @@
 const { Hyperliquid } = require("hyperliquid")
 const fs = require("fs")
 require("dotenv").config()
+const axios = require("axios")
 
 const privateKey = process.env.AGENT_PRIVATE_KEY_TEST
 const address = process.env.PUBLIC_ADDRESS
+const agentAddress = process.env.AGENT_ADDRESS
 const networkType = process.env.NETWORK_TYPE
 
 async function getCandles(symbol, interval, count) {
@@ -41,7 +43,12 @@ async function getCandles(symbol, interval, count) {
         const candles = await sdk.info.getCandleSnapshot(symbol, interval, startTime, endTime, true)
 
         console.log(`Retrieved ${candles.length} candles for ${symbol}`)
-        console.log("last candle close", candles[candles.length - 1])
+        console.log(
+            "last candle close:",
+            candles[candles.length - 1].c,
+            "at",
+            new Date(candles[candles.length - 1].T).toISOString(),
+        )
 
         return candles
     } catch (error) {
@@ -55,7 +62,6 @@ async function getCandles(symbol, interval, count) {
 async function getCurrentPrice(symbol) {
     const sdk = new Hyperliquid({
         enableWs: false,
-        privateKey: process.env.PRIVATE_KEY_TEST,
         testnet: false,
     })
 
@@ -90,58 +96,90 @@ async function getCurrentPrice(symbol) {
     }
 }
 
-async function getUserOpenOrders() {
+async function getUserOpenPositions() {
     const sdk = new Hyperliquid({
         enableWs: false,
-
+        privateKey: privateKey,
         testnet: true,
     })
 
     try {
         await sdk.connect()
 
-        // Ensure the address is properly formatted
-        if (!address || !address.startsWith("0x")) {
-            throw new Error("Invalid address format in environment variables")
+        const userState = await sdk.info.perpetuals.getClearinghouseState(address)
+        const activePositions = userState.assetPositions
+
+        if (activePositions.length > 0) {
+            console.log("Active position Open")
+            return activePositions
+        } else {
+            console.log("No active positions")
+            return []
         }
-
-        // Get user open orders using the global address variable
-        const orders = await sdk.info.getUserOpenOrders(address)
-
-        // Validate the response
-        if (!Array.isArray(orders)) {
-            throw new Error("Invalid response format from API")
-        }
-
-        return orders
     } catch (error) {
-        console.error("Error fetching open orders:", error)
+        console.error("Error fetching positions:", error)
         throw error
     } finally {
         sdk.disconnect()
     }
 }
 
-async function main() {
+async function getUserOpenOrders() {
     try {
-        // const candles = await getCandles("BTC-PERP", "1m", 5)
-        // console.log(candles)
+        const sdk = new Hyperliquid({
+            enableWs: false,
+            privateKey: privateKey,
+            testnet: true,
+        })
 
-        const openOrders = await getUserOpenOrders()
-        console.log(openOrders)
-        // Force process exit after completion
-        // process.exit(0)
+        await sdk.connect()
+
+        const orders = await sdk.info.getUserOpenOrders(address)
+
+        return orders
     } catch (error) {
-        console.error("Error fetching candles:", error)
-        // process.exit(1)
+        console.error("API Connection Error:", {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message,
+        })
+    }
+    throw new Error(`Failed to fetch orders: ${error.message}`)
+}
+
+// Add this helper function to test the connection separately
+async function testConnection() {
+    try {
+        // const orders = await getUserOpenOrders()
+        // console.log("Open orders:", orders)
+        // console.log("-----------------------------------------------")
+        const openpositions = await getUserOpenPositions()
+        console.log("Open positions:", openpositions)
+        console.log("-----------------------------------------------")
+
+        // return orders
+    } catch (error) {
+        console.error("API Connection Test Failed:", {
+            error: error.message,
+        })
     }
 }
-// // Only run main if this file is being run directly
-if (require.main === module) {
-    main()
-}
+// testConnection()
+//     .then(() => {
+//         console.log("Connection test complete")
+//     })
+//     .catch((error) => {
+//         console.error("API Connection Test Failed:", {
+//             error: error.message,
+//         })
+//     })
 
-module.exports = { getCandles, getCurrentPrice, getUserOpenOrders }
+module.exports = {
+    getCandles,
+    getCurrentPrice,
+    getUserOpenOrders,
+    getUserOpenPositions,
+}
 
 // interface Candle {
 //     t: number; // open millis
@@ -155,3 +193,10 @@ module.exports = { getCandles, getCurrentPrice, getUserOpenOrders }
 //     v: number; // volume (base unit)
 //     n: number; // number of trades
 //   }
+
+// // // You can test it like this:
+// testConnection()
+//     .then(() => {
+//         console.log("Connection test complete")
+//     })
+//     .catch(console.error)
