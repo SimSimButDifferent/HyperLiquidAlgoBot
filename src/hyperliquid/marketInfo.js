@@ -103,24 +103,49 @@ async function getUserOpenPositions() {
         testnet: true,
     })
 
-    try {
-        await sdk.connect()
+    let retries = 3
+    let delay = 1000 // 1 second initial delay
 
-        const userState = await sdk.info.perpetuals.getClearinghouseState(address)
-        const activePositions = userState.assetPositions
+    while (retries > 0) {
+        try {
+            await sdk.connect()
 
-        if (activePositions.length > 0) {
-            console.log("Active position Open")
-            return activePositions
-        } else {
-            console.log("No active positions")
-            return []
+            const userState = await sdk.info.perpetuals.getClearinghouseState(address)
+
+            // Add null check for userState
+            if (!userState) {
+                throw new Error("Received null userState from API")
+            }
+
+            const activePositions = userState.assetPositions || []
+
+            if (activePositions.length > 0) {
+                console.log("Active position Open")
+                return activePositions
+            } else {
+                console.log("No active positions")
+                return []
+            }
+        } catch (error) {
+            console.error(`Error fetching positions (${retries} retries left):`, error)
+            retries--
+
+            if (retries === 0) {
+                throw new Error(
+                    `Failed to fetch positions after multiple attempts: ${error.message}`,
+                )
+            }
+
+            // Exponential backoff
+            await new Promise((resolve) => setTimeout(resolve, delay))
+            delay *= 2 // Double the delay for next retry
+        } finally {
+            try {
+                sdk.disconnect()
+            } catch (error) {
+                console.error("Error disconnecting SDK:", error)
+            }
         }
-    } catch (error) {
-        console.error("Error fetching positions:", error)
-        throw error
-    } finally {
-        sdk.disconnect()
     }
 }
 

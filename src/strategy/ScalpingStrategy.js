@@ -32,7 +32,7 @@ class ScalpingStrategy {
 
             return "NONE"
         } catch (error) {
-            this.logger.error("Error evaluating position", { error })
+            this.logger.error("Error evaluating position", { error: error.message })
             throw error
         }
     }

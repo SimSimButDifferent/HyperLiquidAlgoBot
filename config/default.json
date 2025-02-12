@@ -32,8 +32,8 @@
           "multiplier": 1.5
       },
       "ema": {
-          "shortEmaPeriod": 3,
-          "longEmaPeriod": 5
+          "shortEmaPeriod": 25,
+          "longEmaPeriod": 100
       }
   },
   "database": {

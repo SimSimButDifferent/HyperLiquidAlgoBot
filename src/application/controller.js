@@ -32,16 +32,36 @@ console.log("leverage", leverage)
 console.log("positionSize", positionSize)
 console.log("shortEmaPeriod", shortEmaPeriod)
 console.log("longEmaPeriod", longEmaPeriod)
+logger.info("symbol", symbol)
+logger.info("interval", interval)
+logger.info("leverage", leverage)
+logger.info("positionSize", positionSize)
+logger.info("shortEmaPeriod", shortEmaPeriod)
+logger.info("longEmaPeriod", longEmaPeriod)
+logger.info("Boot time", new Date().toISOString())
 
 async function main(symbol, interval) {
     const strategy = new ScalpingStrategy(logger)
+    let consecutiveErrors = 0
+    const MAX_CONSECUTIVE_ERRORS = 5
 
     try {
         async function trade() {
             try {
                 const marketData = await getCandles(symbol, interval, 25)
-                // Check for existing open orders
-                const openOrders = await getUserOpenPositions()
+
+                // Add validation for market data
+                if (!marketData || !Array.isArray(marketData) || marketData.length === 0) {
+                    throw new Error("Invalid market data received")
+                }
+
+                let openOrders
+                try {
+                    openOrders = await getUserOpenPositions()
+                } catch (error) {
+                    logger.error("Error fetching positions, assuming no open positions:", error)
+                    openOrders = []
+                }
 
                 const signal = await strategy.evaluatePosition(marketData)
 
@@ -49,13 +69,34 @@ async function main(symbol, interval) {
                     console.log("Opening long position")
                     const order = await openLong(symbol, positionSize)
                     console.log("Order placed successfully:", order)
+                    logger.info("Order placed successfully:", order)
+                    console.log("Order response:", order.response.data[0])
                 } else if (signal === "CLOSE_LONG" && openOrders.length > 0) {
                     console.log("Closing long position")
                     const order = await closeLong(symbol, positionSize)
                     console.log("Order closed successfully:", order)
+                    logger.info("Order closed successfully:", order)
+                    console.log("Order response:", order.response.data[0])
                 }
+
+                // Reset consecutive errors on successful execution
+                consecutiveErrors = 0
             } catch (error) {
-                console.error("Error executing trade:", error)
+                consecutiveErrors++
+                console.error(
+                    `Error executing trade (${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS}):`,
+                    error,
+                )
+
+                // If too many consecutive errors, stop the bot
+                if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+                    console.error("Too many consecutive errors, stopping bot")
+                    clearInterval(intervalId)
+                    process.exit(1)
+                }
+
+                // Add delay before next attempt
+                await new Promise((resolve) => setTimeout(resolve, 5000))
             }
         }
 
@@ -74,7 +115,8 @@ async function main(symbol, interval) {
         // Later, if you need to stop the bot:
         // clearInterval(intervalId)
     } catch (error) {
-        console.log(error.message)
+        logger.error("Fatal error in main:", error)
+        process.exit(1)
     }
 }
 
