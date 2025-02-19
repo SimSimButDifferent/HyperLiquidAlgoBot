@@ -267,8 +267,8 @@ async function setLeverage(symbol, leverageAmount, leverageMode) {
     try {
         await sdk.connect()
 
-        const result = await sdk.exchange.updateLeverage(symbol, leverageAmount, leverageMode)
-        console.log("Leverage set:", result)
+        const result = await sdk.exchange.updateLeverage(symbol, leverageMode, leverageAmount)
+        console.log("Leverage set")
         return result
     } catch (error) {
         console.error("Error in setLeverage:", error)
@@ -409,60 +409,7 @@ module.exports = {
     setLeverage: (symbol, leverage, mode) => withRetry(() => setLeverage(symbol, leverage, mode)),
 }
 
-// limitLong("BTC-PERP", 0.001, 98000)
-//     .then((order) => {
-//         console.log("Order placed successfully:", order.response.data.statuses)
-//     })
-//     .catch((error) => {
-//         console.error("Error in openLong:", error)
-//     })
-
-// const main = async () => {
-//     const sdk = new Hyperliquid({
-//         privateKey: privateKey,
-//         address: address,
-//         testnet: testnet,
-//         enableWs: false,
-//     })
-//     const openPositions = await getUserOpenPositions()
-//     try {
-//         if (openPositions.length > 0) {
-//             console.log("User has open positions")
-//             const closeLongOrder = await closeLong("BTC-PERP", 0.001)
-//             console.log("Close long order placed:", closeLongOrder)
-//         } else {
-//             console.log("User has no open positions")
-//             const openLongOrder = await openLong("BTC-PERP", 0.001)
-//             console.log("Open long order placed:", openLongOrder)
-//         }
-//     } catch (error) {
-//         console.error("Error in closeLong:", error)
-//     }
-// }
-
-// limitLong("BTC-PERP", 0.001, 98000)
-//     .then((order) => {
-//         console.log("Order placed successfully:", order)
-//     })
-//     .catch((error) => {
-//         console.error("Error in openLong:", error)
-//     })
-
-// main()
-//     .then(() => {
-//         console.log("Main function completed")
-//     })
-//     .catch((error) => {
-//         console.error("Error in main:", error)
-//     })
-
-// closeLong("BTC-PERP", 0.001)
-//     .then((order) => {
-//         console.log("Order placed successfully:", order.response.data.statuses)
-//     })
-//     .catch((error) => {
-//         console.error("Error in closeLong:", error)
-//     })
+// setLeverage("BTC-PERP", 20, "isolated").catch(console.error)
 
 // const orderRequest = {
 //     coin: "SOL-PERP",

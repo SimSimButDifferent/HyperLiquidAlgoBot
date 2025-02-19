@@ -1,5 +1,4 @@
-const { testWebSocket } = require("../hyperliquid/websocket")
-const { getCandles, getUserOpenOrders, getUserOpenPositions } = require("../hyperliquid/marketInfo")
+const { getCandles, getUserOpenPositions } = require("../hyperliquid/marketInfo")
 const { openLong, closeLong, openShort, closeShort, setLeverage } = require("../hyperliquid/trade")
 const BBRSIStrategy = require("../strategy/BBRSIStrategy")
 const winston = require("winston")
@@ -27,20 +26,21 @@ console.log("indicators", indicators)
 console.log("symbol", symbol)
 console.log("interval", interval)
 console.log("leverage", leverage)
+console.log("leverageMode", leverageMode)
 console.log("positionSize", positionSize)
-logger.info("symbol", symbol)
-logger.info("interval", interval)
-logger.info("leverage", leverage)
-logger.info("positionSize", positionSize)
-logger.info("Boot time", new Date().toISOString())
-logger.info("Trading configuration", {
-    symbol,
-    interval,
-    leverage,
-    positionSize,
-})
+// logger.info("symbol", symbol)
+// logger.info("interval", interval)
+// logger.info("leverage", leverage)
+// logger.info("positionSize", positionSize)
+// logger.info("Boot time", new Date().toISOString())
+// logger.info("Trading configuration", {
+//     symbol,
+//     interval,
+//     leverage,
+//     positionSize,
+// })
 
-async function main(symbol, interval) {
+async function main(symbol, interval, leverage, leverageMode, positionSize) {
     const strategy = new BBRSIStrategy(logger)
     let consecutiveErrors = 0
     const MAX_CONSECUTIVE_ERRORS = 5
@@ -52,7 +52,7 @@ async function main(symbol, interval) {
 
         async function trade() {
             try {
-                const marketData = await getCandles(symbol, interval, 25)
+                const marketData = await getCandles(symbol, interval, 50)
                 if (!marketData || !Array.isArray(marketData) || marketData.length === 0) {
                     throw new Error("Invalid market data received")
                 }
@@ -150,7 +150,7 @@ async function main(symbol, interval) {
     }
 }
 
-main(symbol, interval)
+main(symbol, interval, leverage, leverageMode, positionSize)
     .then(() => {
         logger.info("Bot started successfully")
     })

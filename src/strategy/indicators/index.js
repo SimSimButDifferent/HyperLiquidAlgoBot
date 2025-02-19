@@ -1,13 +1,13 @@
 const { RSI, BollingerBands, ADX } = require("trading-signals")
 // const data = require("../../backtesting/data/BTC-PERP/BTC-PERP-1m.json")
 // const last25 = data.slice(-50)
-const config = require("config")
+// const config = require("config")
 
-const indicators = config.get("indicators")
-const rsiPeriod = indicators.rsi.period
-const adxPeriod = indicators.adx.period
-const bollingerPeriod = indicators.bollinger.period
-const bollingerStdDev = indicators.bollinger.stdDev
+// const indicators = config.get("indicators")
+// const rsiPeriod = indicators.rsi.period
+// const adxPeriod = indicators.adx.period
+// const bollingerPeriod = indicators.bollinger.period
+// const bollingerStdDev = indicators.bollinger.stdDev
 
 function calculateBollingerBands(data, period, stdDev) {
     const bb = new BollingerBands(period, stdDev)
@@ -89,5 +89,4 @@ module.exports = {
     calculateBollingerBands,
     calculateADX,
     calculateRSI,
-    testIndicators, // Export for testing
 }
