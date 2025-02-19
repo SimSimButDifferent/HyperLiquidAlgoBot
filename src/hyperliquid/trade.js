@@ -80,60 +80,183 @@ class SDKPool {
 const sdkPool = new SDKPool()
 
 async function limitLong(symbol, quantity, limitPrice) {
-    const sdk = new Hyperliquid({
-        privateKey: privateKey,
-        address: address,
-        testnet: testnet,
-        enableWs: false,
-    })
-
+    let sdk
     try {
-        await sdk.connect()
+        sdk = await sdkPool.getSDK()
 
-        console.log("placing order")
-
-        // Convert quantity to number and validate
         const parsedQuantity = parseFloat(quantity)
         if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
             throw new Error("Invalid quantity. Must be a positive number")
         }
 
-        // Get the current market price to use as limit price
-        const currentPrice = await getCurrentPrice(symbol)
-        console.log("Current price:", currentPrice)
+        const orderRequest = {
+            coin: symbol,
+            is_buy: false, // Selling to take profit on long
+            sz: parsedQuantity,
+            limit_px: limitPrice,
+            order_type: {
+                limit: {
+                    tif: "Gtc", // Good-till-cancelled for take profit orders
+                },
+            },
+            reduce_only: true, // This is a closing order
+        }
 
+        console.log("Take profit order request:", orderRequest)
+        const order = await sdk.exchange.placeOrder(orderRequest)
+        return order
+    } catch (error) {
+        console.error("Error in limitLong:", error)
+        throw error
+    } finally {
+        if (sdk) {
+            await sdkPool.releaseSDK()
+        }
+    }
+}
+
+async function limitShort(symbol, quantity, limitPrice) {
+    let sdk
+    try {
+        sdk = await sdkPool.getSDK()
+
+        const parsedQuantity = parseFloat(quantity)
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+            throw new Error("Invalid quantity. Must be a positive number")
+        }
+
+        const orderRequest = {
+            coin: symbol,
+            is_buy: true, // Buying to take profit on short
+            sz: parsedQuantity,
+            limit_px: limitPrice,
+            order_type: {
+                limit: {
+                    tif: "Gtc", // Good-till-cancelled for take profit orders
+                },
+            },
+            reduce_only: true, // This is a closing order
+        }
+
+        console.log("Take profit order request:", orderRequest)
+        const order = await sdk.exchange.placeOrder(orderRequest)
+        return order
+    } catch (error) {
+        console.error("Error in limitShort:", error)
+        throw error
+    } finally {
+        if (sdk) {
+            await sdkPool.releaseSDK()
+        }
+    }
+}
+
+async function openShort(symbol, quantity) {
+    let sdk
+    try {
+        sdk = await sdkPool.getSDK()
+
+        const parsedQuantity = parseFloat(quantity)
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+            throw new Error("Invalid quantity. Must be a positive number")
+        }
+
+        const currentPrice = await getCurrentPrice(symbol)
         if (!currentPrice || typeof currentPrice !== "number") {
             throw new Error("Invalid current price received")
         }
 
-        // 1. Place Order
+        // For market sell, set limit price slightly lower than current price
+        const limitPrice = parseFloat((currentPrice * 0.995).toFixed(0))
+
         const orderRequest = {
             coin: symbol,
-            is_buy: true,
-            sz: parsedQuantity, // SDK will convert to string internally
-            limit_px: limitPrice, // SDK will convert to string internally
+            is_buy: false,
+            sz: parsedQuantity,
+            limit_px: limitPrice,
             order_type: {
                 limit: {
-                    tif: "Ioc", // Immediate-or-Cancel for market-like orders
+                    tif: "Gtc",
                 },
             },
             reduce_only: false,
         }
 
-        console.log("Order request:", orderRequest)
+        console.log("Short order request:", orderRequest)
         const order = await sdk.exchange.placeOrder(orderRequest)
-
-        console.log(`Long Order placed: ${order}`)
         return order
     } catch (error) {
-        console.error("Error in openLong:", error)
+        console.error("Error in openShort:", error)
         throw error
     } finally {
-        sdk.disconnect()
+        if (sdk) {
+            await sdkPool.releaseSDK()
+        }
     }
 }
 
-async function setLeverage(symbol, leverage, leverageMode) {
+async function closeShort(symbol, quantity) {
+    let sdk
+    try {
+        sdk = await sdkPool.getSDK()
+
+        const parsedQuantity = parseFloat(quantity)
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+            throw new Error("Invalid quantity. Must be a positive number")
+        }
+
+        const currentPrice = await getCurrentPrice(symbol)
+        if (!currentPrice || typeof currentPrice !== "number") {
+            throw new Error("Invalid current price received")
+        }
+
+        // For market buy, set limit price slightly higher than current price
+        const limitPrice = parseFloat((currentPrice * 1.005).toFixed(0))
+
+        const orderRequest = {
+            coin: symbol,
+            is_buy: true,
+            sz: parsedQuantity,
+            limit_px: limitPrice,
+            order_type: {
+                limit: {
+                    tif: "Gtc",
+                },
+            },
+            reduce_only: true,
+        }
+
+        console.log("Close short order request:", orderRequest)
+        const order = await sdk.exchange.placeOrder(orderRequest)
+        return order
+    } catch (error) {
+        console.error("Error in closeShort:", error)
+        throw error
+    } finally {
+        if (sdk) {
+            await sdkPool.releaseSDK()
+        }
+    }
+}
+
+async function cancelOrder(orderId) {
+    let sdk
+    try {
+        sdk = await sdkPool.getSDK()
+        const order = await sdk.exchange.cancelOrder(orderId)
+        console.log("Order cancelled:", orderId)
+        return order
+    } catch (error) {
+        console.error("Error cancelling order:", error)
+        throw error
+    } finally {
+        if (sdk) {
+            await sdkPool.releaseSDK()
+        }
+    }
+}
+
+async function setLeverage(symbol, leverageAmount, leverageMode) {
     const sdk = new Hyperliquid({
         privateKey: privateKey,
         address: address,
@@ -144,9 +267,9 @@ async function setLeverage(symbol, leverage, leverageMode) {
     try {
         await sdk.connect()
 
-        const leverage = await sdk.exchange.updateLeverage(symbol, leverage, leverageMode)
-        console.log("Leverage set:", leverage)
-        return leverage
+        const result = await sdk.exchange.updateLeverage(symbol, leverageAmount, leverageMode)
+        console.log("Leverage set:", result)
+        return result
     } catch (error) {
         console.error("Error in setLeverage:", error)
         throw error
@@ -256,117 +379,6 @@ async function closeLong(symbol, quantity) {
     }
 }
 
-// async function openShort(symbol, quantity) {
-//     const sdk = new Hyperliquid({
-//         privateKey: privateKey,
-//         address: address,
-//         testnet: testnet,
-//         enableWs: false,
-//     })
-
-//     try {
-//         await sdk.connect()
-
-//         console.log("placing order")
-
-//         // Convert quantity to number and validate
-//         const parsedQuantity = parseFloat(quantity)
-//         if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
-//             throw new Error("Invalid quantity. Must be a positive number")
-//         }
-
-//         // Get the current market price to use as limit price
-//         const currentPrice = await getCurrentPrice(symbol)
-//         console.log("Current price:", currentPrice, typeof currentPrice)
-
-//         if (!currentPrice || typeof currentPrice !== "number") {
-//             throw new Error("Invalid current price received")
-//         }
-
-//         // For market sell, set limit price slightly lower than current price
-//         const limitPrice = parseFloat((currentPrice * 0.95).toFixed(0))
-//         console.log("Limit price:", limitPrice, typeof limitPrice)
-
-//         // 1. Place Order
-//         const orderRequest = {
-//             coin: symbol,
-//             is_buy: false,
-//             sz: parsedQuantity,
-//             limit_px: limitPrice,
-//             order_type: {
-//                 limit: {
-//                     tif: "Ioc", // Immediate-or-Cancel for market-like orders
-//                 },
-//             },
-//             reduce_only: false,
-//         }
-
-//         console.log("Order request:", orderRequest)
-//         const order = await sdk.exchange.placeOrder(orderRequest)
-
-//         console.log(`Short Order placed: ${order.order_id}`)
-//         return order
-//     } catch (error) {
-//         console.error("Error in openShort:", error)
-//         throw error
-//     } finally {
-//         sdk.disconnect()
-//     }
-// }
-
-// async function closeShort(symbol, quantity) {
-//     const sdk = new Hyperliquid({
-//         privateKey: privateKey,
-//         address: address,
-//         testnet: testnet,
-//         enableWs: false,
-//     })
-
-//     try {
-//         await sdk.connect()
-
-//         // Convert quantity to number and validate
-//         const parsedQuantity = parseFloat(quantity)
-//         if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
-//             throw new Error("Invalid quantity. Must be a positive number")
-//         }
-
-//         // Get the current market price to use as limit price
-//         const currentPrice = await getCurrentPrice(symbol)
-//         console.log("Current price:", currentPrice, typeof currentPrice)
-
-//         if (!currentPrice || typeof currentPrice !== "number") {
-//             throw new Error("Invalid current price received")
-//         }
-
-//         // For market buy, set limit price slightly higher than current price
-//         const limitPrice = parseFloat((currentPrice * 1.05).toFixed(0))
-//         console.log("Limit price:", limitPrice, typeof limitPrice)
-
-//         const orderRequest = {
-//             coin: symbol,
-//             is_buy: true, // Buying to close short
-//             sz: parsedQuantity,
-//             limit_px: limitPrice,
-//             order_type: {
-//                 limit: {
-//                     tif: "Ioc", // Immediate-or-Cancel for market-like orders
-//                 },
-//             },
-//             reduce_only: true, // This is a closing order
-//         }
-
-//         console.log("Closing short order:", orderRequest)
-//         const order = await sdk.exchange.placeOrder(orderRequest)
-//         return order
-//     } catch (error) {
-//         console.error("Error in closeShort:", error)
-//         throw error
-//     } finally {
-//         sdk.disconnect()
-//     }
-// }
-
 async function withRetry(operation, maxRetries = 3) {
     let lastError
     for (let i = 0; i < maxRetries; i++) {
@@ -391,6 +403,9 @@ module.exports = {
     closeLong: (symbol, quantity) => withRetry(() => closeLong(symbol, quantity)),
     openShort: (symbol, quantity) => withRetry(() => openShort(symbol, quantity)),
     closeShort: (symbol, quantity) => withRetry(() => closeShort(symbol, quantity)),
+    limitLong: (symbol, quantity, price) => withRetry(() => limitLong(symbol, quantity, price)),
+    limitShort: (symbol, quantity, price) => withRetry(() => limitShort(symbol, quantity, price)),
+    cancelOrder: (orderId) => withRetry(() => cancelOrder(orderId)),
     setLeverage: (symbol, leverage, mode) => withRetry(() => setLeverage(symbol, leverage, mode)),
 }
 

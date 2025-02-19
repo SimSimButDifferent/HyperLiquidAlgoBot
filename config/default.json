@@ -5,35 +5,23 @@
       "leverage": 20,
       "leverageMode": "isolated",
       "maxPositions": 3,
-      "timeframe": "1m",
-      "stopLoss": {
-          "percentage": 1.5
-      },
-      "takeProfit": {
-          "percentage": 2.5
-      },
-      "dailyLossLimit": 10,
+      "timeframe": "15m",
+      "profitTarget": 1.5,
       "testMode": true
   },
   "indicators": {
       "rsi": {
           "period": 14,
-          "overbought": 70,
-          "oversold": 30,
-          "exitLong": 45,
-          "exitShort": 55
+          "overbought": 75,
+          "oversold": 25
       },
-      "vwap": {
+      "bollinger": {
+          "period": 20,
+          "stdDev": 2
+      },
+      "adx": {
           "period": 14,
-          "deviation": 1.5
-      },
-      "atr": {
-          "period": 14,
-          "multiplier": 1.5
-      },
-      "ema": {
-          "shortEmaPeriod": 25,
-          "longEmaPeriod": 100
+          "threshold": 25
       }
   },
   "database": {
