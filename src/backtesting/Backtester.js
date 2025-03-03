@@ -18,12 +18,14 @@ class Backtester {
             ],
         })
 
-        // Trading configuration
+        // Trading configuration from config file
         const tradingConfig = config.get("trading")
-        this.symbol = tradingConfig.market
-        this.leverage = tradingConfig.leverage
-        this.positionSize = tradingConfig.positionSize
-        this.timeframe = tradingConfig.timeframe
+        this.symbol = tradingConfig.market // BTC-PERP
+        this.leverage = tradingConfig.leverage // 20
+        this.positionSize = tradingConfig.positionSize // 0.001
+        this.timeframe = tradingConfig.timeframe // 15m
+        this.profitTarget = tradingConfig.profitTarget // 1.5
+        this.leverageMode = tradingConfig.leverageMode // isolated
         this.initialCapital = 1000 // Starting with $1000
 
         // Trading state
@@ -50,6 +52,16 @@ class Backtester {
         this.tradingFee = 0.001
 
         this.strategy = new BBRSIStrategy(this.logger)
+
+        this.logger.info("Backtester initialized with parameters:", {
+            symbol: this.symbol,
+            leverage: this.leverage,
+            positionSize: this.positionSize,
+            timeframe: this.timeframe,
+            profitTarget: this.profitTarget,
+            leverageMode: this.leverageMode,
+            initialCapital: this.initialCapital,
+        })
     }
 
     async loadData() {
@@ -117,7 +129,11 @@ class Backtester {
 
     async runBacktest() {
         await this.loadData()
+        // Ensure enough lookback for indicators (especially Bollinger Bands which need 20 periods)
         let lookback = Math.max(50, config.get("indicators.bollinger.period") + 10)
+
+        this.logger.info(`Starting backtest on ${this.symbol} with ${this.data.length} candles`)
+        this.logger.info(`Using leverage: ${this.leverage}x, position size: ${this.positionSize}`)
 
         for (let i = lookback; i < this.data.length; i++) {
             const currentCandle = this.data[i]

@@ -8,15 +8,28 @@ class BBRSIStrategy {
         this.timeframe = config.get("trading.timeframe")
         this.profitTarget = config.get("trading.profitTarget")
 
-        // Indicator settings
+        // Indicator settings from config
         const indicators = config.get("indicators")
-        this.rsiPeriod = indicators.rsi.period
-        this.rsiOverbought = indicators.rsi.overbought
-        this.rsiOversold = indicators.rsi.oversold
-        this.bbPeriod = indicators.bollinger.period
-        this.bbStdDev = indicators.bollinger.stdDev
-        this.adxPeriod = indicators.adx.period
-        this.adxThreshold = indicators.adx.threshold
+        this.rsiPeriod = indicators.rsi.period // 14
+        this.rsiOverbought = indicators.rsi.overbought // 75
+        this.rsiOversold = indicators.rsi.oversold // 25
+        this.bbPeriod = indicators.bollinger.period // 20
+        this.bbStdDev = indicators.bollinger.stdDev // 2
+        this.adxPeriod = indicators.adx.period // 14
+        this.adxThreshold = indicators.adx.threshold // 25
+
+        this.logger.info("Strategy initialized with parameters:", {
+            market: this.market,
+            timeframe: this.timeframe,
+            profitTarget: this.profitTarget,
+            rsi: {
+                period: this.rsiPeriod,
+                overbought: this.rsiOverbought,
+                oversold: this.rsiOversold,
+            },
+            bollinger: { period: this.bbPeriod, stdDev: this.bbStdDev },
+            adx: { period: this.adxPeriod, threshold: this.adxThreshold },
+        })
     }
 
     async evaluatePosition(data) {
@@ -51,13 +64,13 @@ class BBRSIStrategy {
 
             // Exit Long conditions - ta.crossunder(close, basis)
             // 1. Price crosses under the middle band (basis) OR
-            // 2. RSI goes above 80
+            // 2. RSI goes above 80 (using 80 instead of rsiOverbought for exit as per Pine Script)
             const crossedUnderMiddle = previousPrice >= bb.middle && currentPrice < bb.middle
             const rsiExitLong = rsi > 80
 
             // Exit Short conditions
             // 1. Price crosses under the lower band OR
-            // 2. RSI goes below 20
+            // 2. RSI goes below 20 (using 20 instead of rsiOversold for exit as per Pine Script)
             const crossedUnderLower = previousPrice >= bb.lower && currentPrice < bb.lower
             const rsiExitShort = rsi < 20
 
@@ -83,8 +96,10 @@ class BBRSIStrategy {
                 this.logger.debug("Long signal generated", {
                     price: currentPrice,
                     rsi: rsi,
+                    rsiThreshold: this.rsiOversold,
                     lowerBand: bb.lower,
                     adx: adx,
+                    adxThreshold: this.adxThreshold,
                     takeProfit: result.takeProfit,
                 })
             } else if (shortConditions) {
@@ -93,8 +108,10 @@ class BBRSIStrategy {
                 this.logger.debug("Short signal generated", {
                     price: currentPrice,
                     rsi: rsi,
+                    rsiThreshold: this.rsiOverbought,
                     upperBand: bb.upper,
                     adx: adx,
+                    adxThreshold: this.adxThreshold,
                     takeProfit: result.takeProfit,
                 })
             } else if ((crossedUnderMiddle || rsiExitLong) && currentPrice > 0) {

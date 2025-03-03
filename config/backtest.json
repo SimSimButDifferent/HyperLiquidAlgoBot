@@ -1,0 +1,46 @@
+{
+  "trading": {
+      "market": "BTC-PERP",
+      "positionSize": 0.1,
+      "leverage": 5,
+      "leverageMode": "isolated",
+      "maxPositions": 1,
+      "timeframe": "15m",
+      "profitTarget": 1.5,
+      "testMode": true
+  },
+  "indicators": {
+      "rsi": {
+          "period": 14,
+          "overbought": 75,
+          "oversold": 25
+      },
+      "bollinger": {
+          "period": 20,
+          "stdDev": 2
+      },
+      "adx": {
+          "period": 14,
+          "threshold": 25
+      }
+  },
+  "database": {
+      "path": "./db/backtest.db"
+  },
+  "logging": {
+      "console": {
+          "level": "info"
+      },
+      "file": {
+          "level": "debug",
+          "path": "./logs/backtest.log"
+      }
+  },
+  "backtest": {
+      "initialCapital": 10000,
+      "tradingFee": 0.001,
+      "slippage": 0.0005,
+      "startDate": "2023-01-01",
+      "endDate": "2023-12-31"
+  }
+} 
