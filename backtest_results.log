@@ -1,0 +1,18 @@
+{"level":"info","message":"Loaded 301 candles for BTC-PERP","timestamp":"2025-02-19T09:26:19.934Z"}
+{"--- RISK/PERFORMANCE RATIOS ---":{"Long/Short Ratio":"0/0","Margin Calls":0,"Sharpe Ratio":"NaN"},"--- TRADE ANALYSIS ---":{"Final Equity":"$1000.00","Max Drawdown":"0.00%","Net Profit":"$0.00","Profit Factor":"NaN","Total Trades":0,"Win Rate":"NaN%"},"level":"info","message":"Backtest Results:","timestamp":"2025-02-19T09:26:42.188Z"}
+{"level":"info","message":"Loaded 301 candles for BTC-PERP","timestamp":"2025-02-20T07:41:30.857Z"}
+{"--- RISK/PERFORMANCE RATIOS ---":{"Long/Short Ratio":"0/0","Margin Calls":0,"Sharpe Ratio":"NaN"},"--- TRADE ANALYSIS ---":{"Final Equity":"$1000.00","Max Drawdown":"0.00%","Net Profit":"$0.00","Profit Factor":"NaN","Total Trades":0,"Win Rate":"NaN%"},"level":"info","message":"Backtest Results:","timestamp":"2025-02-20T07:41:56.526Z"}
+{"level":"info","message":"Loaded 6147 candles for BTC-PERP","timestamp":"2025-02-20T07:43:15.645Z"}
+{"--- RISK/PERFORMANCE RATIOS ---":{"Long/Short Ratio":"0/0","Margin Calls":0,"Sharpe Ratio":"NaN"},"--- TRADE ANALYSIS ---":{"Final Equity":"$1000.00","Max Drawdown":"0.00%","Net Profit":"$0.00","Profit Factor":"NaN","Total Trades":0,"Win Rate":"NaN%"},"level":"info","message":"Backtest Results:","timestamp":"2025-02-20T07:51:39.675Z"}
+{"level":"info","message":"Loaded 6147 candles for BTC-PERP","timestamp":"2025-02-20T08:18:52.528Z"}
+{"level":"debug","message":"Signal generated:","price":95100,"signal":"CLOSE_SHORT","time":"2024-12-04T16:15:00.000Z","timestamp":"2025-02-20T08:18:52.715Z"}
+{"level":"debug","message":"Signal generated:","price":98227,"signal":"SHORT","time":"2024-12-04T20:00:00.000Z","timestamp":"2025-02-20T08:18:54.081Z"}
+{"equity":1000,"level":"info","message":"Entered Short Position","price":98227,"timestamp":"2025-02-20T08:18:54.081Z"}
+{"level":"debug","message":"Signal generated:","price":98219,"signal":"CLOSE_LONG","time":"2024-12-04T20:15:00.000Z","timestamp":"2025-02-20T08:18:54.170Z"}
+{"level":"debug","message":"Signal generated:","price":98911,"signal":"SHORT","time":"2024-12-04T20:30:00.000Z","timestamp":"2025-02-20T08:18:54.258Z"}
+{"level":"debug","message":"Signal generated:","price":98857,"signal":"CLOSE_LONG","time":"2024-12-04T20:45:00.000Z","timestamp":"2025-02-20T08:18:54.343Z"}
+{"level":"debug","message":"Signal generated:","price":98361,"signal":"CLOSE_LONG","time":"2024-12-05T00:30:00.000Z","timestamp":"2025-02-20T08:18:55.809Z"}
+{"level":"debug","message":"Signal generated:","price":98232,"signal":"CLOSE_LONG","time":"2024-12-05T01:45:00.000Z","timestamp":"2025-02-20T08:18:56.233Z"}
+{"level":"debug","message":"Signal generated:","price":101909,"signal":"CLOSE_LONG","time":"2024-12-05T02:30:00.000Z","timestamp":"2025-02-20T08:18:56.480Z"}
+{"equity":1000,"level":"info","message":"Position Liquidated","price":103303,"timestamp":"2025-02-20T08:18:56.562Z"}
+{"--- RISK/PERFORMANCE RATIOS ---":{"Long/Short Ratio":"0/1","Margin Calls":1,"Sharpe Ratio":"NaN"},"--- TRADE ANALYSIS ---":{"Final Equity":"$0.00","Max Drawdown":"0.00%","Net Profit":"$0.00","Profit Factor":"NaN","Total Trades":0,"Win Rate":"NaN%"},"level":"info","message":"Backtest Results:","timestamp":"2025-02-20T08:18:56.563Z"}

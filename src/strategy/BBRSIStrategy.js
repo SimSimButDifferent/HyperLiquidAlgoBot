@@ -21,61 +21,103 @@ class BBRSIStrategy {
 
     async evaluatePosition(data) {
         try {
+            // Calculate indicators
             const bb = calculateBollingerBands(data, this.bbPeriod, this.bbStdDev)
             const adx = calculateADX(data, this.adxPeriod)
             const rsi = calculateRSI(data, this.rsiPeriod)
 
-            const currentPrice = parseFloat(data[data.length - 1].close)
-            const previousPrice = parseFloat(data[data.length - 2].close)
+            const currentPrice = parseFloat(data[data.length - 1].c)
+            const previousPrice = parseFloat(data[data.length - 2].c)
 
-            const currentADX = adx[0]
-            const currentRSI = rsi[0]
+            // Entry conditions matching Pine Script logic
 
-            // Long Entry Conditions
+            // Long Entry Conditions - ta.crossunder(close, lower)
+            // 1. Price crosses below the lower Bollinger Band.
+            // 2. RSI is below the oversold level.
+            // 3. ADX is above the threshold.
             const crossedBelowLower = previousPrice >= bb.lower && currentPrice < bb.lower
             const longConditions =
-                crossedBelowLower &&
-                currentRSI < this.rsiOversold &&
-                currentADX >= this.adxThreshold
+                crossedBelowLower && rsi < this.rsiOversold && adx >= this.adxThreshold
 
-            // Short Entry Conditions
+            // Short Entry Conditions - ta.crossover(close, upper)
+            // 1. Price crosses above the upper Bollinger Band.
+            // 2. RSI is above the overbought level.
+            // 3. ADX is above the threshold.
             const crossedAboveUpper = previousPrice <= bb.upper && currentPrice > bb.upper
             const shortConditions =
-                crossedAboveUpper &&
-                currentRSI > this.rsiOverbought &&
-                currentADX >= this.adxThreshold
+                crossedAboveUpper && rsi > this.rsiOverbought && adx >= this.adxThreshold
 
-            // Exit Conditions
+            // Exit Conditions matching Pine Script logic
+
+            // Exit Long conditions - ta.crossunder(close, basis)
+            // 1. Price crosses under the middle band (basis) OR
+            // 2. RSI goes above 80
             const crossedUnderMiddle = previousPrice >= bb.middle && currentPrice < bb.middle
+            const rsiExitLong = rsi > 80
+
+            // Exit Short conditions
+            // 1. Price crosses under the lower band OR
+            // 2. RSI goes below 20
             const crossedUnderLower = previousPrice >= bb.lower && currentPrice < bb.lower
+            const rsiExitShort = rsi < 20
 
+            // Prepare result with all indicator values
+            const result = {
+                signal: "NONE",
+                indicators: {
+                    bb: {
+                        upper: bb.upper,
+                        middle: bb.middle,
+                        lower: bb.lower,
+                    },
+                    rsi: rsi,
+                    adx: adx,
+                    price: currentPrice,
+                },
+            }
+
+            // Set appropriate signal based on conditions
             if (longConditions) {
-                const entryPrice = currentPrice
-                const takeProfitPrice = entryPrice * (1 + this.profitTarget / 100)
-                return {
-                    signal: "LONG",
-                    takeProfit: takeProfitPrice,
-                }
+                result.signal = "LONG"
+                result.takeProfit = currentPrice * (1 + this.profitTarget / 100)
+                this.logger.debug("Long signal generated", {
+                    price: currentPrice,
+                    rsi: rsi,
+                    lowerBand: bb.lower,
+                    adx: adx,
+                    takeProfit: result.takeProfit,
+                })
+            } else if (shortConditions) {
+                result.signal = "SHORT"
+                result.takeProfit = currentPrice * (1 - this.profitTarget / 100)
+                this.logger.debug("Short signal generated", {
+                    price: currentPrice,
+                    rsi: rsi,
+                    upperBand: bb.upper,
+                    adx: adx,
+                    takeProfit: result.takeProfit,
+                })
+            } else if ((crossedUnderMiddle || rsiExitLong) && currentPrice > 0) {
+                result.signal = "CLOSE_LONG"
+                this.logger.debug("Close long signal generated", {
+                    price: currentPrice,
+                    rsi: rsi,
+                    middleBand: bb.middle,
+                    crossedMiddle: crossedUnderMiddle,
+                    rsiExitTriggered: rsiExitLong,
+                })
+            } else if ((crossedUnderLower || rsiExitShort) && currentPrice > 0) {
+                result.signal = "CLOSE_SHORT"
+                this.logger.debug("Close short signal generated", {
+                    price: currentPrice,
+                    rsi: rsi,
+                    lowerBand: bb.lower,
+                    crossedLower: crossedUnderLower,
+                    rsiExitTriggered: rsiExitShort,
+                })
             }
 
-            if (shortConditions) {
-                const entryPrice = currentPrice
-                const takeProfitPrice = entryPrice * (1 - this.profitTarget / 100)
-                return {
-                    signal: "SHORT",
-                    takeProfit: takeProfitPrice,
-                }
-            }
-
-            if (currentRSI > this.rsiOverbought || crossedUnderMiddle) {
-                return { signal: "CLOSE_LONG" }
-            }
-
-            if (currentRSI < this.rsiOversold || crossedUnderLower) {
-                return { signal: "CLOSE_SHORT" }
-            }
-
-            return { signal: "NONE" }
+            return result
         } catch (error) {
             this.logger.error("Error evaluating position", { error: error.message })
             throw error

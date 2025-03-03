@@ -7,7 +7,8 @@
     "start": "ts-node src/index.ts",
     "test": "jest",
     "build": "tsc",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "backtest": "node src/backtesting/run.js"
   },
   "dependencies": {
     "@dydxprotocol/v4-client-js": "^1.15.1",
@@ -21,7 +22,8 @@
     "trading-signals": "^6.0.1",
     "tulind": "^0.8.20",
     "typescript": "^5.3.3",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
