@@ -1,0 +1,35 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Trade Performance Analysis</title>
+            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .chart-container { width: 100%; height: 500px; margin-bottom: 40px; }
+                .chart-grid { display: flex; flex-wrap: wrap; }
+                .chart-grid .chart-container { width: 48%; }
+            </style>
+        </head>
+        <body>
+            <h1>Trade Performance Analysis</h1>
+            <div id="tradePerformance" class="chart-container"></div>
+<div id="winLossRatio" class="chart-container"></div>
+<div id="pnlByExitReason" class="chart-container"></div>
+            <script>
+                
+            const figure_tradePerformance = {"data":[{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],"y":[-164.5316868070897,71.7989186863081,72.32305079271845,72.85100906350456,-61.44700934242085,25.39199057267711,40.95092609398087,73.41856155313523,73.95451705247318,-61.362675001817,74.04643749944287,74.58697649318911,15.941550200467695,35.54713266579525,-105.93056475865689,36.046010906699,66.605649990406,75.48339280832353,-41.69850905216643,38.641272782774514,76.01210375105752,61.90585372912919,-215.1913793023473,14.955068545691216,22.87066513565812],"type":"bar","name":"Trade P&L","marker":{"color":["red","green","green","green","red","green","green","green","green","red","green","green","green","green","red","green","green","green","red","green","green","green","red","green","green"]}},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],"y":[-164.5316868070897,-92.7327681207816,-20.409717328063152,52.44129173544141,-9.005717606979438,16.38627296569767,57.33719905967854,130.7557606128138,204.71027766528698,143.34760266346998,217.39404016291286,291.981016656102,307.9225668565697,343.4696995223649,237.53913476370803,273.58514567040703,340.190795660813,415.67418846913654,373.97567941697014,412.6169521997447,488.6290559508022,550.5349096799314,335.3435303775841,350.29859892327534,373.16926405893344],"type":"scatter","mode":"lines+markers","name":"Cumulative P&L","line":{"color":"blue","width":2}}],"layout":{"title":"Trade Performance Analysis","grid":{"rows":1,"columns":1},"xaxis":{"title":"Trade Number"},"yaxis":{"title":"P&L ($)"},"legend":{"orientation":"h","y":-0.2},"margin":{"l":60,"r":60,"t":60,"b":80}}};
+            Plotly.newPlot('tradePerformance', figure_tradePerformance.data, figure_tradePerformance.layout);
+        
+
+            const figure_winLossRatio = {"data":[{"labels":["Winning Trades","Losing Trades"],"values":[19,6],"type":"pie","domain":{"row":0,"column":1},"name":"Win/Loss Ratio","marker":{"colors":["green","red"]}}],"layout":{"title":"Win/Loss Distribution","height":400,"width":500}};
+            Plotly.newPlot('winLossRatio', figure_winLossRatio.data, figure_winLossRatio.layout);
+        
+
+            const figure_pnlByExitReason = {"data":[{"labels":["SIGNAL","TAKE_PROFIT"],"values":[-291.30570364121917,664.4749677001527],"type":"pie","domain":{"row":1,"column":1},"name":"P&L by Exit Reason","marker":{"colors":["blue","purple","orange"]}}],"layout":{"title":"P&L by Exit Reason","height":400,"width":500}};
+            Plotly.newPlot('pnlByExitReason', figure_pnlByExitReason.data, figure_pnlByExitReason.layout);
+        
+            </script>
+        </body>
+        </html>
+        

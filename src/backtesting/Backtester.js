@@ -51,7 +51,8 @@ class Backtester {
         // Trading fees (0.1% per trade)
         this.tradingFee = 0.001
 
-        this.strategy = new BBRSIStrategy(this.logger)
+        // Replace direct strategy instantiation with createStrategy method call
+        this.strategy = this.createStrategy()
 
         this.logger.info("Backtester initialized with parameters:", {
             symbol: this.symbol,
@@ -62,6 +63,11 @@ class Backtester {
             leverageMode: this.leverageMode,
             initialCapital: this.initialCapital,
         })
+    }
+
+    // Add createStrategy method that can be overridden
+    createStrategy() {
+        return new BBRSIStrategy(this.logger)
     }
 
     async loadData() {

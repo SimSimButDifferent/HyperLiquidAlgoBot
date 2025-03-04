@@ -4,6 +4,7 @@ const { hideBin } = require("yargs/helpers")
 const config = require("config")
 const path = require("path")
 const fs = require("fs")
+const MLEnhancedStrategy = require("./strategies/MLEnhancedStrategy")
 
 async function main() {
     // Parse command line arguments
@@ -43,6 +44,16 @@ async function main() {
             alias: "cap",
             describe: "Initial capital for backtesting",
             type: "number",
+        })
+        .option("use-ml", {
+            alias: "ml",
+            describe: "Use ML-optimized parameters",
+            type: "boolean",
+            default: false,
+        })
+        .option("ml-model", {
+            describe: "ML model to use (e.g., BTC-PERP_15m_randomforest)",
+            type: "string",
         })
         .help().argv
 
@@ -87,6 +98,49 @@ async function main() {
     const positionSize = argv.position !== undefined ? argv.position : defaultPositionSize
     const profitTarget = argv.profit !== undefined ? argv.profit : defaultProfitTarget
     const capital = argv.capital !== undefined ? argv.capital : initialCapital
+    const useML = argv["use-ml"] || false
+
+    // If using ML, find available models
+    let mlModelPath = null
+    if (useML) {
+        console.log("Looking for ML models...")
+        const availableModels = MLEnhancedStrategy.getAvailableModels()
+
+        if (availableModels.length === 0) {
+            console.warn("No ML models found. Run the ml_optimize.js script first.")
+            console.warn("Continuing with default strategy parameters...")
+        } else {
+            // If a specific model was requested, find it
+            if (argv["ml-model"]) {
+                const requestedModel = availableModels.find(
+                    (model) => model.name === argv["ml-model"],
+                )
+                if (requestedModel) {
+                    mlModelPath = requestedModel.path
+                    console.log(`Using ML model: ${requestedModel.name}`)
+                } else {
+                    console.warn(`Requested model ${argv["ml-model"]} not found.`)
+                }
+            }
+            // Otherwise, try to find a model matching the current market and timeframe
+            else {
+                const matchingModel = availableModels.find(
+                    (model) => model.market === market && model.timeframe === timeframe,
+                )
+
+                if (matchingModel) {
+                    mlModelPath = matchingModel.path
+                    console.log(`Using matching ML model: ${matchingModel.name}`)
+                }
+            }
+
+            // If still no model path, use the first available model
+            if (!mlModelPath && availableModels.length > 0) {
+                mlModelPath = availableModels[0].path
+                console.log(`Using default ML model: ${availableModels[0].name}`)
+            }
+        }
+    }
 
     console.log("Starting backtester with parameters:", {
         config: argv.config,
@@ -97,6 +151,8 @@ async function main() {
         profitTarget,
         initialCapital: capital,
         tradingFee,
+        useML,
+        mlModelPath,
     })
 
     const backtester = new Backtester()
@@ -110,6 +166,30 @@ async function main() {
     backtester.initialCapital = capital
     backtester.equity = capital
     backtester.tradingFee = tradingFee
+
+    // If using ML strategy, override the strategy creation method
+    if (useML && mlModelPath) {
+        console.log("Setting up ML-enhanced strategy with model path:", mlModelPath)
+
+        // Store the original createStrategy method
+        const originalCreateStrategy = backtester.createStrategy
+
+        // Override with ML-enhanced strategy
+        backtester.createStrategy = function () {
+            console.log("Creating ML-enhanced strategy instance")
+            const mlStrategy = new MLEnhancedStrategy({
+                baseStrategy: "BBRSI", // Default to BBRSI strategy
+                modelPath: mlModelPath,
+            })
+            console.log("ML-enhanced strategy created")
+            return mlStrategy
+        }
+
+        // Force recreation of the strategy
+        backtester.strategy = backtester.createStrategy()
+
+        console.log("Using ML-enhanced strategy with optimized parameters")
+    }
 
     try {
         console.time("Backtest execution time")

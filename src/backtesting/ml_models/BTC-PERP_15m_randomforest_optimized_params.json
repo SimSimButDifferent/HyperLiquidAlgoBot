@@ -1,0 +1,27 @@
+{
+  "rsiPeriod": 12,
+  "rsiOverbought": 72,
+  "rsiOversold": 28,
+  "bbPeriod": 22,
+  "bbStdDev": 2.2,
+  "adxPeriod": 13,
+  "adxThreshold": 23,
+  "profitTarget": 1.8,
+  "metrics": {
+    "totalProfitLoss": 1342.56,
+    "winRate": 0.78,
+    "sharpeRatio": 1.65,
+    "maxDrawdown": 0.12
+  },
+  "featureImportance": {
+    "rsi": 0.32,
+    "bbWidth": 0.28,
+    "adx": 0.23,
+    "priceVolatility": 0.12,
+    "volumeChange": 0.05
+  },
+  "modelType": "randomforest",
+  "trainingDate": "2023-03-04T00:00:00.000Z",
+  "datasetSize": 100,
+  "targetMetric": "totalProfitLoss"
+} 

@@ -1,0 +1,58 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Backtest Summary Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h1, h2 { color: #333; }
+                .summary-container { margin-bottom: 30px; }
+                .chart-links { margin-top: 20px; }
+                .chart-links a { display: block; margin-bottom: 10px; }
+                .stats-table { border-collapse: collapse; width: 100%; max-width: 600px; }
+                .stats-table td, .stats-table th { border: 1px solid #ddd; padding: 8px; }
+                .stats-table th { padding-top: 12px; padding-bottom: 12px; text-align: left; background-color: #4CAF50; color: white; }
+                .key-metrics { display: flex; flex-wrap: wrap; margin-bottom: 20px; }
+                .metric-box { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin: 10px; flex: 1; min-width: 200px; }
+                .metric-value { font-size: 24px; font-weight: bold; margin: 10px 0; }
+                .metric-label { font-size: 14px; color: #666; }
+                .positive { color: green; }
+                .negative { color: red; }
+            </style>
+        </head>
+        <body>
+            <h1>Backtest Summary Report</h1>
+            
+            <div class="summary-container">
+                <h2>Key Metrics</h2>
+                <div class="key-metrics">
+                    <div class="metric-box">
+                        <div class="metric-label">Initial Capital</div>
+                        <div class="metric-value">$10000.00</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Final Equity</div>
+                        <div class="metric-value">$10373.17</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Total Return</div>
+                        <div class="metric-value positive">3.73%</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Win Rate</div>
+                        <div class="metric-value">76.00%</div>
+                    </div>
+                </div>
+                
+                <table class="stats-table"><tr><th colspan="2">Trade Statistics</th></tr><tr><td>Total Trades</td><td>25</td></tr><tr><td>Profitable Trades</td><td>19 (76.00%)</td></tr><tr><td>Losing Trades</td><td>6</td></tr><tr><td>Average Profit per Trade</td><td>$14.93</td></tr><tr><td>Average Win</td><td>$53.86</td></tr><tr><td>Average Loss</td><td>$-108.36</td></tr><tr><td>Largest Win</td><td>$76.01</td></tr><tr><td>Largest Loss</td><td>$-215.19</td></tr></table>
+            </div>
+            
+            <div class="chart-links">
+                <h2>Detailed Charts</h2>
+                <a href="equity_curve_chart.html" target="_blank">Equity Curve Chart</a>
+                <a href="trade_performance_chart.html" target="_blank">Trade Performance Analysis</a>
+                <a href="drawdown_chart.html" target="_blank">Drawdown Analysis</a>
+            </div>
+        </body>
+        </html>
+        

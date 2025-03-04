@@ -1,1 +1,227 @@
-[]
+[
+  {
+    "type": "SHORT",
+    "entry": 98227,
+    "exit": 101420,
+    "pnl": -164.5316868070897,
+    "entryTime": 1733342400000,
+    "exitTime": 1733412600000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 94555,
+    "exit": 95973.325,
+    "pnl": 71.7989186863081,
+    "entryTime": 1733436900000,
+    "exitTime": 1733437800000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "SHORT",
+    "entry": 101220,
+    "exit": 99701.7,
+    "pnl": 72.32305079271845,
+    "entryTime": 1733701500000,
+    "exitTime": 1733704200000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "LONG",
+    "entry": 94594,
+    "exit": 96012.90999999999,
+    "pnl": 72.85100906350456,
+    "entryTime": 1733848200000,
+    "exitTime": 1733849100000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "SHORT",
+    "entry": 99617,
+    "exit": 100795,
+    "pnl": -61.44700934242085,
+    "entryTime": 1733928300000,
+    "exitTime": 1733963400000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "SHORT",
+    "entry": 103411,
+    "exit": 102844,
+    "pnl": 25.39199057267711,
+    "entryTime": 1734265800000,
+    "exitTime": 1734297300000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "SHORT",
+    "entry": 105051,
+    "exit": 104150,
+    "pnl": 40.95092609398087,
+    "entryTime": 1734304500000,
+    "exitTime": 1734348600000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 100365,
+    "exit": 101870.47499999999,
+    "pnl": 73.41856155313523,
+    "entryTime": 1734553800000,
+    "exitTime": 1734598800000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "LONG",
+    "entry": 93962,
+    "exit": 95371.43,
+    "pnl": 73.95451705247318,
+    "entryTime": 1734688800000,
+    "exitTime": 1734701400000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "LONG",
+    "entry": 96677,
+    "exit": 95553,
+    "pnl": -61.362675001817,
+    "entryTime": 1735200000000,
+    "exitTime": 1735218000000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 91890,
+    "exit": 93268.34999999999,
+    "pnl": 74.04643749944287,
+    "entryTime": 1735569900000,
+    "exitTime": 1735579800000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "SHORT",
+    "entry": 95205,
+    "exit": 93776.925,
+    "pnl": 74.58697649318911,
+    "entryTime": 1735650000000,
+    "exitTime": 1735666200000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "SHORT",
+    "entry": 98060,
+    "exit": 97717,
+    "pnl": 15.941550200467695,
+    "entryTime": 1735920900000,
+    "exitTime": 1735983900000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "SHORT",
+    "entry": 98670,
+    "exit": 97950,
+    "pnl": 35.54713266579525,
+    "entryTime": 1736023500000,
+    "exitTime": 1736064000000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 98792,
+    "exit": 96808,
+    "pnl": -105.93056475865689,
+    "entryTime": 1736262000000,
+    "exitTime": 1736285400000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 95271,
+    "exit": 95980,
+    "pnl": 36.046010906699,
+    "entryTime": 1736318700000,
+    "exitTime": 1736325900000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "SHORT",
+    "entry": 94790,
+    "exit": 93523,
+    "pnl": 66.605649990406,
+    "entryTime": 1736494200000,
+    "exitTime": 1736515800000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 93813,
+    "exit": 95220.19499999999,
+    "pnl": 75.48339280832353,
+    "entryTime": 1736674200000,
+    "exitTime": 1736694900000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "LONG",
+    "entry": 92022,
+    "exit": 91322,
+    "pnl": -41.69850905216643,
+    "entryTime": 1736763300000,
+    "exitTime": 1736786700000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "SHORT",
+    "entry": 104081,
+    "exit": 103264,
+    "pnl": 38.641272782774514,
+    "entryTime": 1737126000000,
+    "exitTime": 1737171000000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 101271,
+    "exit": 102790.06499999999,
+    "pnl": 76.01210375105752,
+    "entryTime": 1737327600000,
+    "exitTime": 1737354600000,
+    "exitReason": "TAKE_PROFIT"
+  },
+  {
+    "type": "SHORT",
+    "entry": 108076,
+    "exit": 106757,
+    "pnl": 61.90585372912919,
+    "entryTime": 1737355500000,
+    "exitTime": 1737375300000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 103336,
+    "exit": 99162,
+    "pnl": -215.1913793023473,
+    "entryTime": 1737932400000,
+    "exitTime": 1737972000000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "LONG",
+    "entry": 99576,
+    "exit": 99904,
+    "pnl": 14.955068545691216,
+    "entryTime": 1738466100000,
+    "exitTime": 1738480500000,
+    "exitReason": "SIGNAL"
+  },
+  {
+    "type": "SHORT",
+    "entry": 101259,
+    "exit": 100771,
+    "pnl": 22.87066513565812,
+    "entryTime": 1738611000000,
+    "exitTime": 1738630800000,
+    "exitReason": "SIGNAL"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "totalTrades": 25,
+  "profitableTrades": 19,
+  "losingTrades": 6,
+  "winRate": 0.76,
+  "averageProfitPerTrade": 14.926770562357337,
+  "averageWin": 53.85953096439114,
+  "averageLoss": -108.36030404408302,
+  "largestWin": 76.01210375105752,
+  "largestLoss": -215.1913793023473,
+  "profitByExitReason": {
+    "SIGNAL": -291.30570364121917,
+    "TAKE_PROFIT": 664.4749677001527,
+    "LIQUIDATION": 0
+  },
+  "tradesByExitReason": {
+    "SIGNAL": 16,
+    "TAKE_PROFIT": 9,
+    "LIQUIDATION": 0
+  }
+}
