@@ -19,7 +19,7 @@
     "lodash": "^4.17.23",
     "open": "^10.1.0",
     "plotly": "^1.0.6",
-    "sqlite3": "^5.1.6",
+    "sqlite3": "^6.0.1",
     "technicalindicators": "^3.1.0",
     "trading-signals": "^6.0.1",
     "tulind": "^0.8.20",
